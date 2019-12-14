@@ -1,10 +1,11 @@
 const express = require('express');
 const apiRouter = express.Router();
 
-
+console.log('apiRouter is functioning');
 
 const minions = require('./minions.js');
 
-apiRouter.use('/api/minions', minions);
+apiRouter.use('/minions', minions);
+
 
 module.exports = apiRouter;
