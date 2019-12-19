@@ -3,23 +3,34 @@ const minionsRouter = express.Router();
 
 console.log('minionsRouter is functioning');
 const db = require('./db.js');
-//console.log(db);
 
+//Turn the minionId into a number and add it to the request
 minionsRouter.use('/:minionId', (req, res, next) => {
-    //Turn the minionId into a number and add it to the request
-    //console.log('middleware is functioning');
     const id = req.params;
     const minionIdNumber = Number(id.minionId);
     req.minionIdNumber = minionIdNumber;
     next();
 });
 
-const getAllMinions = (req, res, next) => {
+//Get a copy of the minions in the database
+const getAllMinions = () => {
     let allMinions = [];
     allMinions = db.getAllFromDatabase('minions');
-    // req.getAllMinions = getAllMinions;
     return allMinions;
 };
+
+//Verify that the minion is in the database
+const verifyMinion = (minionIdNumber) => {
+    let allMinions = getAllMinions();
+    let isIncluded = false;
+    allMinions.forEach((minionObject) => {
+        let minionObjectId = minionObject.id;
+        if (minionObjectId == minionIdNumber){
+            isIncluded = true;
+        }
+    });
+    return isIncluded;
+}
 
 minionsRouter.get('/', (req, res, next) => {
     //console.log('GET route functioning');
@@ -30,34 +41,18 @@ minionsRouter.get('/', (req, res, next) => {
 });
 
 minionsRouter.get('/:minionId', (req, res, next) => {
-    //console.log('/minion/:minionId is functioning');
     const id = req.params;
-    //console.log(id);
     const minionIdNumber = req.minionIdNumber;
-    
-    //const minionIdType = typeof minionIdNumber;
-    let allMinions = getAllMinions();
-    let isIncluded = false;
-    let includedId = allMinions.forEach((minionObject) => {
-        let minionObjectId = minionObject.id;
-        if (minionObjectId == req.minionIdNumber){
-            isIncluded = true;
-        }
-    });
-
-    if (isNaN(req.minionIdNumber) || !isIncluded ){
-        
+    if (isNaN(req.minionIdNumber) || !verifyMinion(minionIdNumber) ){
         res.status(404);
     } else{
         const getMinion = db.getFromDatabaseById('minions', id.minionId);
         res.status(200).send(getMinion);
     }
-    
     next();
 });
 
 minionsRouter.post('/', (req, res, next) => {
-    console.log('post route');
     const createMinion = {};
     createMinion.id = this.id;
     createMinion.name = req.body.name;
@@ -68,31 +63,32 @@ minionsRouter.post('/', (req, res, next) => {
 })
 
 minionsRouter.put('/:minionId', (req, res, next) => {
-    console.log('put route is functioning');
-    
-    const minionId = req.params.minionId;
+    const minionIdNumber = Number(req.params.minionId);
+    console.log(minionIdNumber);
     //console.log(req.body);
-    let minionToChange = db.getFromDatabaseById('minions', minionId);
-    //console.log(minionToChange);
-    // const changeMinion = (minionToChange) => {};
+    let minionToChange = db.getFromDatabaseById('minions', minionIdNumber);
+
     const changedMinion = req.body;
-    //console.log(changedMinion);
-    const returnedMinion = db.updateInstanceInDatabase('minions', changedMinion);
+
+    if (isNaN(req.minionIdNumber) || !verifyMinion(minionIdNumber) ){
+        res.status(404);
+    } else{
+        const returnedMinion = db.updateInstanceInDatabase('minions', changedMinion);
     res.status(200).send(returnedMinion);
+    }
+    next();
+});
 
+minionsRouter.delete('/:id', (req, res, next) => {
     const id = req.params;
-    const minionIdNumber = Number(id.minionId);
-    let allMinions = [];
-    allMinions = db.getAllFromDatabase('minions');
-    let includedId = allMinions.forEach((minionObject) => {
-        let minionObjectId = Number(minionObject.id);
-        if (minionObjectId == minionIdNumber){
-            isIncluded = true;
-        }
-    });
-
-    // if (isNaN(minionId) || )
-
+    const minionIdNumber = req.minionIdNumber;
+    const minionId = req.params.id;
+    if(isNaN(minionId) || !verifyMinion(minionIdNumber)){
+        res.status(404).send(false);
+    } else {
+        db.deleteFromDatabasebyId('minions', minionId);
+        res.status(204).send(true);
+    }
     next();
 });
 
