@@ -14,19 +14,6 @@ minionsRouter.use('/:minionId', (req, res, next) => {
     next();
 });
 
-//Verify that the minion is in the database
-// const verifyMinion = (minionIdNumber) => {
-//     let allMinions = Module.getAllModels('minions');
-//     let isIncluded = false;
-//     allMinions.forEach((minionObject) => {
-//         let minionObjectId = minionObject.id;
-//         if (minionObjectId == minionIdNumber){
-//             isIncluded = true;
-//         }
-//     });
-//     return isIncluded;
-// }
-
 minionsRouter.get('/', (req, res, next) => {;
     let allMinions = Module.getAllModels('minions');
     res.status(200).send(allMinions);

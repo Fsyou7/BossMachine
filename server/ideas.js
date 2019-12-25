@@ -10,9 +10,9 @@ ideasRouter.use('/:ideasId', (req, res, next) => {
     const id = req.params;
     const ideaIdNumber = Number(id.ideasId);
     req.ideaIdNumber = ideaIdNumber;
-    //console.log(id)
     next();
 });
+
 
 
 ideasRouter.get('/', (req, res, next) => {
@@ -21,18 +21,10 @@ ideasRouter.get('/', (req, res, next) => {
     next();
 });
 
-// ideasRouter.get('/:ideaId', (req, res, next) => {
-//     let allIdeas = Modules.getAllModels('ideas')
-
-//     const id = req.params;
-//     //console.log(id);
-    
-// })
-
 ideasRouter.get('/:ideaId', (req, res, next) => {
     const id = req.params;
     const ideaIdNumber = req.ideaIdNumber;
-   //console.log(id);
+
     const ideaIsIncluded = Module.verifyModel('ideas', ideaIdNumber);
     
     if (isNaN(ideaIdNumber) || !ideaIsIncluded ){
@@ -63,7 +55,6 @@ ideasRouter.put('/:ideaId', (req, res, next) => {
 });
 
 ideasRouter.post('/', (req, res, next) => {
-    //console.log(req.body);
     const createIdea = {};
     createIdea.id = this.id;
     createIdea.name = req.body.name;
