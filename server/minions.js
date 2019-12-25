@@ -3,6 +3,8 @@ const minionsRouter = express.Router();
 
 console.log('minionsRouter is functioning');
 const db = require('./db.js');
+const Module = require('./module.js');
+console.log(Module);
 
 //Turn the minionId into a number and add it to the request
 minionsRouter.use('/:minionId', (req, res, next) => {
@@ -12,30 +14,21 @@ minionsRouter.use('/:minionId', (req, res, next) => {
     next();
 });
 
-//Get a copy of the minions in the database
-const getAllMinions = () => {
-    let allMinions = [];
-    allMinions = db.getAllFromDatabase('minions');
-    return allMinions;
-};
-
 //Verify that the minion is in the database
-const verifyMinion = (minionIdNumber) => {
-    let allMinions = getAllMinions();
-    let isIncluded = false;
-    allMinions.forEach((minionObject) => {
-        let minionObjectId = minionObject.id;
-        if (minionObjectId == minionIdNumber){
-            isIncluded = true;
-        }
-    });
-    return isIncluded;
-}
+// const verifyMinion = (minionIdNumber) => {
+//     let allMinions = Module.getAllModels('minions');
+//     let isIncluded = false;
+//     allMinions.forEach((minionObject) => {
+//         let minionObjectId = minionObject.id;
+//         if (minionObjectId == minionIdNumber){
+//             isIncluded = true;
+//         }
+//     });
+//     return isIncluded;
+// }
 
-minionsRouter.get('/', (req, res, next) => {
-    //console.log('GET route functioning');
-    //console.log(getAllMinions());
-    let allMinions = getAllMinions();
+minionsRouter.get('/', (req, res, next) => {;
+    let allMinions = Module.getAllModels('minions');
     res.status(200).send(allMinions);
     next();
 });
@@ -43,7 +36,11 @@ minionsRouter.get('/', (req, res, next) => {
 minionsRouter.get('/:minionId', (req, res, next) => {
     const id = req.params;
     const minionIdNumber = req.minionIdNumber;
-    if (isNaN(req.minionIdNumber) || !verifyMinion(minionIdNumber) ){
+   
+    const minionIsIncluded = Module.verifyModel('minions', minionIdNumber);
+    
+    if (isNaN(minionIdNumber) || !minionIsIncluded ){
+        //console.log('if not status 200')
         res.status(404);
     } else{
         const getMinion = db.getFromDatabaseById('minions', id.minionId);
@@ -63,14 +60,14 @@ minionsRouter.post('/', (req, res, next) => {
 })
 
 minionsRouter.put('/:minionId', (req, res, next) => {
-    const minionIdNumber = Number(req.params.minionId);
-    console.log(minionIdNumber);
-    //console.log(req.body);
+    const id = req.params;
+    const minionIdNumber = req.minionIdNumber;
+   
+    const minionIsIncluded = Module.verifyModel('minions', minionIdNumber);
     let minionToChange = db.getFromDatabaseById('minions', minionIdNumber);
-
     const changedMinion = req.body;
 
-    if (isNaN(req.minionIdNumber) || !verifyMinion(minionIdNumber) ){
+    if (isNaN(minionIdNumber) || !minionIsIncluded ){
         res.status(404);
     } else{
         const returnedMinion = db.updateInstanceInDatabase('minions', changedMinion);
@@ -83,7 +80,9 @@ minionsRouter.delete('/:id', (req, res, next) => {
     const id = req.params;
     const minionIdNumber = req.minionIdNumber;
     const minionId = req.params.id;
-    if(isNaN(minionId) || !verifyMinion(minionIdNumber)){
+
+    const minionIsIncluded = Module.verifyModel('minions', minionIdNumber);
+    if(isNaN(minionIdNumber) || !minionIsIncluded){
         res.status(404).send(false);
     } else {
         db.deleteFromDatabasebyId('minions', minionId);
