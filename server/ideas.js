@@ -4,6 +4,8 @@ const ideasRouter = express.Router();
 console.log('ideasRouter is functioning');
 const db = require('./db.js');
 const Module = require('./module.js');
+const checkIdea = require('./checkMillionDollarIdea.js')
+
 
 //Turn the ideasId into a number and add it to the request
 ideasRouter.use('/:ideasId', (req, res, next) => {
@@ -12,7 +14,6 @@ ideasRouter.use('/:ideasId', (req, res, next) => {
     req.ideaIdNumber = ideaIdNumber;
     next();
 });
-
 
 
 ideasRouter.get('/', (req, res, next) => {
@@ -54,6 +55,8 @@ ideasRouter.put('/:ideaId', (req, res, next) => {
     next();
 });
 
+ideasRouter.post('/', checkIdea);
+
 ideasRouter.post('/', (req, res, next) => {
     const createIdea = {};
     createIdea.id = this.id;
@@ -63,7 +66,8 @@ ideasRouter.post('/', (req, res, next) => {
     createIdea.weeklyRevenue = req.body.weeklyRevenue;
     res.status(201).send(db.addToDatabase('ideas', createIdea));
     next();
-})
+});
+
 
 ideasRouter.delete('/:id', (req, res, next) => {
     const id = req.params;
