@@ -4,7 +4,6 @@ const minionsRouter = express.Router();
 console.log('minionsRouter is functioning');
 const db = require('./db.js');
 const Module = require('./module.js');
-console.log(Module);
 
 //Turn the minionId into a number and add it to the request
 minionsRouter.use('/:minionId', (req, res, next) => {
