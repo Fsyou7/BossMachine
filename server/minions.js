@@ -77,4 +77,77 @@ minionsRouter.delete('/:id', (req, res, next) => {
     next();
 });
 
+const getMinionWork = (req, res, next) => {
+    let minionId = req.params.minionId;
+    let work = db.getAllFromDatabase('work');
+    let workArray = [];
+    let workIndex = 0;
+    const minionIsIncluded = Module.verifyModel('minions', minionId);
+    if (isNaN(minionId) || !minionIsIncluded){
+        res.status(404).send();
+    } else{
+        let minionWork = work.forEach((workObject)=> {
+            if(workObject.id == minionId){
+                workArray[workIndex] = workObject;
+                workIndex ++;
+            }
+        });
+        //console.log(workArray);
+        res.status(200).send(workArray);
+    }  
+    next();
+}
+
+const putMinionWork = (req, res, next) => {
+    let workId = req.params.workId;
+    let minionId = req.params.minionId;
+    //console.log(req.params);
+    //console.log(req.body);
+    let updatedWork = req.body;
+    const workIsIncluded = Module.verifyModel('work', workId);
+    if (isNaN(workId) || !workIsIncluded){
+        res.status(404).send();
+    } else if (workId !== minionId ){
+        res.status(400).send();
+    }
+    
+    else {
+        const returnedWork = db.updateInstanceInDatabase('work', updatedWork);
+        res.status(200).send(returnedWork);
+    }
+    
+};
+
+const postMinionWork = (req, res, next) => {
+    const createWork = {};
+    createWork.id = req.body.id;
+    createWork.title = req.body.title;
+    createWork.description = req.body.description;
+    createWork.hours = req.body.hours;
+    createWork.minionId = req.body.minionId;
+    res.status(201).send(db.addToDatabase('work', createWork));
+    next();
+};
+
+const deleteMinionWork = (req, res, next) => {
+    const workId = req.params.workId;
+    const minionId = req.params.minionId;
+    
+    const workIsIncluded = Module.verifyModel('work', workId);
+    const minionIsIncluded = Module.verifyModel('work', workId);
+    if(isNaN(workId) || !minionIsIncluded){
+        res.status(404).send();
+    } else {
+        db.deleteFromDatabasebyId('work', workId);
+        res.status(204).send();
+    }
+    next();
+};
+
+minionsRouter.get('/:minionId/work', getMinionWork);
+minionsRouter.put('/:minionId/work/:workId', putMinionWork);
+minionsRouter.post('/:minionId/work/', postMinionWork);
+minionsRouter.delete('/:minionId/work/:workId', deleteMinionWork);
+
+
 module.exports = minionsRouter;
